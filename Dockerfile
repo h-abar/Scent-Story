@@ -2,17 +2,15 @@ FROM node:20-alpine AS base
 
 # Install dependencies
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY package*.json .npmrc ./
-# Use npm install instead of npm ci to avoid lockfile sync issues
-# The ARG below busts Docker cache when needed
 ARG CACHE_BUST=1
 RUN npm install --ignore-scripts
-RUN npx prisma generate
 
 # Build the application
 FROM base AS builder
+RUN apk add --no-cache openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
