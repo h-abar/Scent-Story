@@ -10,7 +10,7 @@ RUN npm install --ignore-scripts
 
 # Build the application
 FROM base AS builder
-RUN apk add --no-cache openssl sharp
+RUN apk add --no-cache openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -18,11 +18,12 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 RUN npx prisma generate
+RUN npm install sharp
 RUN npm run build
 
 # Production image
 FROM base AS runner
-RUN apk add --no-cache openssl sharp
+RUN apk add --no-cache openssl
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -40,6 +41,8 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
+COPY --from=builder /app/node_modules/@img ./node_modules/@img
 COPY --from=builder /app/prisma ./prisma
 
 RUN chown -R nextjs:nodejs /app
