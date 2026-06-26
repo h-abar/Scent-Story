@@ -51,4 +51,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["sh", "-c", "node node_modules/prisma/build/index.js db push --accept-data-loss && node node_modules/prisma/build/index.js db seed && node server.js"]
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js db push --accept-data-loss --skip-generate && node node_modules/tsx/dist/cli.mjs prisma/seed.ts && node server.js"]
