@@ -1,0 +1,331 @@
+// Prisma schema لحكاية طيب (Scent Story)
+// مولّد العميل: prisma-client-js
+// موفّر قاعدة البيانات: postgresql
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================== التعدادات (Enums) =====================
+
+enum OrderStatus {
+  new
+  awaiting_transfer
+  receipt_uploaded
+  under_review
+  payment_confirmed
+  preparing
+  shipped
+  completed
+  cancelled
+}
+
+enum PaymentMethod {
+  receipt_upload
+  whatsapp
+}
+
+enum FulfillmentType {
+  shipping
+  pickup
+}
+
+enum PaymentStatus {
+  pending
+  approved
+  rejected
+}
+
+// ===================== النماذج =====================
+
+model Category {
+  id             String     @id @default(cuid())
+  name           String
+  slug           String     @unique
+  description    String?
+  image          String?
+  sortOrder      Int        @default(0)
+  isActive       Boolean    @default(true)
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String?
+  products       Product[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([isActive])
+  @@map("categories")
+}
+
+model Product {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  name            String
+  description     String?
+  shortDescription String?
+  price           Decimal       @db.Decimal(10, 2)
+  compareAtPrice  Decimal?      @db.Decimal(10, 2)
+  images          String[]      @default([])
+  stock           Int           @default(0)
+  sku             String?       @unique
+  barcode         String?
+  weight          Decimal?      @db.Decimal(10, 2)
+  origin          String?
+  fragranceNotes  String?
+  isActive        Boolean       @default(true)
+  isFeatured      Boolean       @default(false)
+  isBestSeller    Boolean       @default(false)
+  isNew           Boolean       @default(false)
+  views           Int           @default(0)
+  categoryId      String
+  category        Category      @relation(fields: [categoryId], references: [id])
+  orderItems      OrderItem[]
+  reviews         Review[]
+  wishlists       Wishlist[]
+  seoTitle        String?
+  seoDescription  String?
+  seoKeywords     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([isBestSeller])
+  @@index([slug])
+  @@map("products")
+}
+
+model Branch {
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("branches")
+}
+
+model Order {
+  id            String          @id @default(cuid())
+  orderNumber   String          @unique
+  customerName  String
+  phone         String
+  customerId    String?
+  customer      Customer?       @relation(fields: [customerId], references: [id])
+  city          String?
+  address       String?
+  notes         String?
+  fulfillment   FulfillmentType
+  branchId      String?
+  branch        Branch?         @relation(fields: [branchId], references: [id])
+  subtotal      Decimal         @db.Decimal(10, 2)
+  shippingFee   Decimal         @default(0) @db.Decimal(10, 2)
+  tax           Decimal         @default(0) @db.Decimal(10, 2)
+  discount      Decimal         @default(0) @db.Decimal(10, 2)
+  total         Decimal         @db.Decimal(10, 2)
+  status        OrderStatus     @default(new)
+  paymentMethod PaymentMethod
+  items         OrderItem[]
+  payment       Payment?
+  source        String          @default("website") // website, whatsapp, admin
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([customerId])
+  @@index([phone])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  name      String // لقطة من اسم المنتج وقت الطلب
+  price     Decimal @db.Decimal(10, 2) // لقطة من السعر
+  quantity  Int
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                 String        @id @default(cuid())
+  orderId            String        @unique
+  order              Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method             PaymentMethod
+  receiptUrl         String?
+  bankName           String?
+  referenceNumber    String?
+  accountHolderName  String?
+  transferDate       DateTime?
+  last4              String?
+  status             PaymentStatus @default(pending)
+  verifiedBy         String?
+  verifiedAt         DateTime?
+  rejectionReason    String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model Settings {
+  id              Int      @id @default(1)
+  storeName       String   @default("حكايا الطيب")
+  storeNameEn     String   @default("Hakaya Altayib")
+  logo            String?
+  whatsappNumber  String?
+  email           String?
+  phone           String?
+  address         String?
+  shippingFee     Decimal  @default(25) @db.Decimal(10, 2)
+  freeShippingThreshold Decimal? @db.Decimal(10, 2)
+  currency        String   @default("SAR")
+  taxRate         Decimal  @default(0) @db.Decimal(5, 2)
+  // حسابات بنكية بصيئة JSON: [{ bankName, iban, holder }]
+  bankAccounts    Json     @default("[]")
+  socialLinks     Json     @default("{}")
+  metaTitle       String?
+  metaDescription String?
+  footerText      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String?
+  city      String?
+  address   String?
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phone])
+  @@map("customers")
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  sessionId String? // for anonymous users
+  userId    String?
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([sessionId, productId])
+  @@unique([userId, productId])
+  @@index([productId])
+  @@map("wishlists")
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String?
+  subtitle  String?
+  image     String
+  link      String?
+  position  String   @default("home_hero")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position, isActive])
+  @@map("banners")
+}
+
+model HomeSection {
+  id          String   @id @default(cuid())
+  title       String?
+  subtitle    String?
+  type        String   // featured, best_sellers, new_arrivals, category_grid, banner
+  content     Json?    // flexible config
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type, isActive])
+  @@map("home_sections")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  email     String?
+  rating    Int      @default(5)
+  comment   String?
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@map("reviews")
+}
+
+model Coupon {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  description  String?
+  discountType String    // percentage, fixed
+  discountValue Decimal  @db.Decimal(10, 2)
+  minOrder     Decimal?  @db.Decimal(10, 2)
+  maxUses      Int?
+  usedCount    Int       @default(0)
+  startsAt     DateTime?
+  expiresAt    DateTime?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("coupons")
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  passwordHash String
+  name      String?
+  role      String   @default("admin") // admin, manager
+  isActive  Boolean  @default(true)
+  lastLoginAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  adminId   String?
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([entity, createdAt])
+  @@map("activity_logs")
+}

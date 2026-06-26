@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/hakaya_altayib?schema=public
+      - SESSION_SECRET=change-me-to-a-long-random-secret-32-chars+
+      - ADMIN_PASSWORD=admin
+      - NEXT_PUBLIC_WHATSAPP_NUMBER=966500000000
+    depends_on:
+      - db
+    volumes:
+      - uploads:/data/uploads
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=hakaya_altayib
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+  uploads:

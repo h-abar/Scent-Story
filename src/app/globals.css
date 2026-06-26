@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 34 48% 97%;
+    --foreground: 20 32% 14%;
+    --muted: 33 35% 92%;
+    --muted-foreground: 20 15% 42%;
+    --border: 28 25% 85%;
+    --input: 33 35% 92%;
+    --ring: 38 40% 61%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #FFFDF9;
+    color: #3B2417;
+    font-feature-settings: "kern" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: rgba(201, 166, 107, 0.25);
+    color: #3B2417;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-brand-gold text-brand-brown-dark shadow-gold hover:bg-brand-gold-dark hover:shadow-lg focus-visible:ring-brand-gold;
+  }
+  .btn-secondary {
+    @apply btn bg-brand-brown text-white hover:bg-brand-brown-dark focus-visible:ring-brand-brown;
+  }
+  .btn-outline {
+    @apply btn border border-brand-gold bg-transparent text-brand-brown hover:bg-brand-gold/10 focus-visible:ring-brand-gold;
+  }
+  .btn-ghost {
+    @apply btn text-brand-brown hover:bg-cream-200 focus-visible:ring-brand-gold;
+  }
+  .btn-white {
+    @apply btn bg-white text-brand-brown-dark shadow-soft hover:shadow-card hover:text-brand-gold;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-cream-300 bg-white px-4 py-3 text-sm text-brand-brown-dark placeholder:text-oud-400 focus:border-brand-gold focus:outline-none focus:ring-2 focus:ring-brand-gold/20;
+  }
+  .label {
+    @apply mb-2 block text-sm font-medium text-brand-brown;
+  }
+
+  .card {
+    @apply rounded-2xl border border-cream-300 bg-white shadow-soft;
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-card hover:-translate-y-1;
+  }
+
+  .section-title {
+    @apply font-display text-3xl font-medium text-brand-brown-dark md:text-4xl;
+  }
+  .section-subtitle {
+    @apply mt-3 text-oud-500;
+  }
+
+  .luxury-gradient {
+    @apply bg-gradient-to-br from-brand-brown-dark via-brand-brown to-brand-brown-dark;
+  }
+  .gold-gradient {
+    @apply bg-gradient-to-r from-brand-gold via-brand-gold-light to-brand-gold;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* أنماط الطباعة للفواتير وبوالص الشحن */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F1E7;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9A66B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A6854D;
+}
