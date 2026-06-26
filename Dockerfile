@@ -5,7 +5,11 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package*.json .npmrc ./
-RUN npm install --ignore-scripts && npx prisma generate
+# Use npm install instead of npm ci to avoid lockfile sync issues
+# The ARG below busts Docker cache when needed
+ARG CACHE_BUST=1
+RUN npm install --ignore-scripts
+RUN npx prisma generate
 
 # Build the application
 FROM base AS builder
