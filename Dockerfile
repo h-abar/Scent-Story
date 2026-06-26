@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package*.json .npmrc ./
 ARG CACHE_BUST=1
 RUN npm install --ignore-scripts
+RUN npm install sharp --no-save
 
 # Build the application
 FROM base AS builder
@@ -18,7 +19,6 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 RUN npx prisma generate
-RUN npm install sharp
 RUN npm run build
 
 # Production image
