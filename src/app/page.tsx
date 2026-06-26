@@ -5,7 +5,7 @@ import { ProductCard } from "@/components/storefront/product-card";
 import { serializeProducts, serializeBanners } from "@/lib/serialize";
 import { ArrowLeft, Star, Truck, Shield, Gift, Headphones, Instagram } from "lucide-react";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 const CATEGORY_ICONS: Record<string, string> = {
   oud: "🪵",
