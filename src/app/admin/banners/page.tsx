@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function AdminBannersPage() {
   const banners = await prisma.banner.findMany({
-    orderBy: { position: "asc", sortOrder: "asc" },
+    orderBy: [{ position: "asc" }, { sortOrder: "asc" }],
   });
 
   return (
