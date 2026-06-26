@@ -7,11 +7,11 @@ export interface AdminSession {
 }
 
 export const sessionOptions: SessionOptions = {
-  password: process.env.SESSION_SECRET ?? "development-insecure-secret-please-change-this-32+chars-long",
+  password: process.env.SESSION_SECRET ?? "development-insecure-secret-please-change-this-32+chars-long-padding-for-security",
   cookieName: "scent_story_admin",
   cookieOptions: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7, // أسبوع واحد
     path: "/",
