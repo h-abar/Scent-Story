@@ -10,7 +10,7 @@ RUN npm install --ignore-scripts
 
 # Build the application
 FROM base AS builder
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl sharp
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -22,6 +22,7 @@ RUN npm run build
 
 # Production image
 FROM base AS runner
+RUN apk add --no-cache openssl sharp
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -30,12 +31,18 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Create .next/cache with correct permissions before switching user
+RUN mkdir -p .next/cache
+RUN chown -R nextjs:nodejs /app
+
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/prisma ./prisma
+
+RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
