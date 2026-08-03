@@ -52,6 +52,7 @@ model Category {
   image          String?
   sortOrder      Int        @default(0)
   isActive       Boolean    @default(true)
+  showOnHome     Boolean    @default(true)
   seoTitle       String?
   seoDescription String?
   seoKeywords    String?

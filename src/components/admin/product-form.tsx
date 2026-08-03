@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loader2, Save, Plus, Trash2, ImageIcon } from "lucide-react";
+import { Loader2, Save, Plus, Trash2, ImageIcon, Upload } from "lucide-react";
 
 interface ProductFormProps {
   initialData?: any;
@@ -35,6 +35,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
   });
 
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
@@ -50,6 +51,23 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
 
   function removeImage(index: number) {
     setForm((prev) => ({ ...prev, images: prev.images.filter((_: string, i: number) => i !== index) }));
+  }
+
+  async function uploadImage(file: File) {
+    setUploading(true);
+    setError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/uploads", { method: "POST", body });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "فشل رفع الصورة");
+      setForm((prev) => ({ ...prev, images: [...prev.images, data.url] }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "فشل رفع الصورة");
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -231,7 +249,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
 
       <div className="card p-6">
         <h2 className="mb-4 font-display text-xl font-medium text-brand-brown-dark">الصور</h2>
-        <div className="flex gap-2 mb-4">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row">
           <input
             type="url"
             placeholder="رابط الصورة"
@@ -241,8 +259,23 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
             dir="ltr"
           />
           <button type="button" onClick={addImage} className="btn-outline gap-2">
-            <Plus className="h-4 w-4" /> إضافة
+            <Plus className="h-4 w-4" /> إضافة رابط
           </button>
+          <label className={`btn-outline cursor-pointer gap-2 ${uploading ? "pointer-events-none opacity-60" : ""}`}>
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {uploading ? "جاري الرفع..." : "رفع صورة"}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="sr-only"
+              disabled={uploading}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void uploadImage(file);
+                e.currentTarget.value = "";
+              }}
+            />
+          </label>
         </div>
         <div className="grid grid-cols-4 gap-3">
           {form.images.map((img: string, i: number) => (

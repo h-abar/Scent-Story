@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   if (!session.isLoggedIn) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
   const body = await req.json();
-  const { name, slug, description, image, sortOrder, isActive, seoTitle, seoDescription } = body;
+  const { name, slug, description, image, sortOrder, isActive, showOnHome, seoTitle, seoDescription } = body;
 
   if (!name || !slug) {
     return NextResponse.json({ error: "الاسم والslug مطلوبان" }, { status: 400 });
@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
         image,
         sortOrder: Number(sortOrder) || 0,
         isActive: !!isActive,
+        showOnHome: showOnHome !== false,
         seoTitle,
         seoDescription,
       },

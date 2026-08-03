@@ -156,6 +156,7 @@ export interface SerializedCategory {
   image: string | null;
   sortOrder: number;
   isActive: boolean;
+  showOnHome: boolean;
   productCount?: number;
 }
 
@@ -168,6 +169,7 @@ export function serializeCategory(category: any): SerializedCategory {
     image: category.image ?? null,
     sortOrder: category.sortOrder,
     isActive: category.isActive,
+    showOnHome: category.showOnHome ?? true,
     productCount: category._count?.products ?? category.products?.length ?? undefined,
   };
 }

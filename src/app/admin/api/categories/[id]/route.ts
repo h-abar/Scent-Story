@@ -30,6 +30,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (body.image !== undefined) data.image = body.image;
   if (body.sortOrder !== undefined) data.sortOrder = Number(body.sortOrder);
   if (body.isActive !== undefined) data.isActive = !!body.isActive;
+  if (body.showOnHome !== undefined) data.showOnHome = !!body.showOnHome;
   if (body.seoTitle !== undefined) data.seoTitle = body.seoTitle;
   if (body.seoDescription !== undefined) data.seoDescription = body.seoDescription;
 

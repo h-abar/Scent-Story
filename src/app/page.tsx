@@ -48,6 +48,7 @@ export default async function HomePage() {
       take: 4,
     }),
     prisma.category.findMany({
+      where: { isActive: true, showOnHome: true },
       orderBy: { sortOrder: "asc" },
     }),
     prisma.banner.findMany({

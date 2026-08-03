@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, House } from "lucide-react";
 import type { SerializedCategory } from "@/lib/serialize";
 
 interface CategoriesListProps {
@@ -22,6 +22,24 @@ export function CategoriesList({ initialCategories }: CategoriesListProps) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !category.isActive }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCategories((prev) => prev.map((c) => (c.id === id ? data.category : c)));
+      }
+    } catch {}
+    setLoadingId(null);
+  }
+
+  async function toggleHome(id: string) {
+    const category = categories.find((c) => c.id === id);
+    if (!category) return;
+    setLoadingId(id);
+    try {
+      const res = await fetch(`/admin/api/categories/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ showOnHome: !category.showOnHome }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -56,6 +74,7 @@ export function CategoriesList({ initialCategories }: CategoriesListProps) {
               <th className="px-4 py-3 font-medium">Slug</th>
               <th className="px-4 py-3 font-medium">المنتجات</th>
               <th className="px-4 py-3 font-medium">الحالة</th>
+              <th className="px-4 py-3 font-medium">الرئيسية</th>
               <th className="px-4 py-3 font-medium"></th>
             </tr>
           </thead>
@@ -80,12 +99,20 @@ export function CategoriesList({ initialCategories }: CategoriesListProps) {
                   </span>
                 </td>
                 <td className="px-4 py-3">
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${cat.showOnHome ? "bg-blue-50 text-blue-700" : "bg-oud-100 text-oud-500"}`}>
+                    {cat.showOnHome ? "ظاهر" : "مخفي"}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <Link href={`/admin/categories/${cat.id}`} className="rounded-lg p-1.5 text-oud-500 hover:bg-cream-100 hover:text-brand-gold">
                       <Pencil className="h-4 w-4" />
                     </Link>
-                    <button onClick={() => toggleActive(cat.id)} disabled={loadingId === cat.id} className="rounded-lg p-1.5 text-oud-500 hover:bg-cream-100 hover:text-brand-gold">
+                    <button onClick={() => toggleActive(cat.id)} disabled={loadingId === cat.id} className="rounded-lg p-1.5 text-oud-500 hover:bg-cream-100 hover:text-brand-gold" title={cat.isActive ? "إخفاء التصنيف" : "تفعيل التصنيف"}>
                       {loadingId === cat.id ? <Loader2 className="h-4 w-4 animate-spin" /> : cat.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                    <button onClick={() => toggleHome(cat.id)} disabled={loadingId === cat.id} className="rounded-lg p-1.5 text-oud-500 hover:bg-cream-100 hover:text-brand-gold" title={cat.showOnHome ? "إخفاء من الرئيسية" : "إظهار في الرئيسية"}>
+                      <House className={`h-4 w-4 ${cat.showOnHome ? "text-blue-600" : "text-oud-400"}`} />
                     </button>
                     <button onClick={() => deleteCategory(cat.id)} disabled={loadingId === cat.id} className="rounded-lg p-1.5 text-oud-500 hover:bg-red-50 hover:text-red-500">
                       <Trash2 className="h-4 w-4" />

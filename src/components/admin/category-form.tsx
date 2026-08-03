@@ -19,6 +19,7 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
     image: initialData?.image || "",
     sortOrder: initialData?.sortOrder ?? 0,
     isActive: initialData?.isActive ?? true,
+    showOnHome: initialData?.showOnHome ?? true,
     seoTitle: initialData?.seoTitle || "",
     seoDescription: initialData?.seoDescription || "",
   });
@@ -78,9 +79,15 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
             <label className="label">الترتيب</label>
             <input type="number" className="input" value={form.sortOrder} onChange={(e) => updateField("sortOrder", parseInt(e.target.value) || 0)} dir="ltr" />
           </div>
-          <div className="flex items-center gap-2 pt-6">
-            <input type="checkbox" checked={form.isActive} onChange={(e) => updateField("isActive", e.target.checked)} className="h-4 w-4 rounded border-cream-300 text-brand-gold focus:ring-brand-gold" />
-            <span className="text-sm text-brand-brown">نشط</span>
+          <div className="flex flex-wrap items-center gap-4 pt-6">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={form.isActive} onChange={(e) => updateField("isActive", e.target.checked)} className="h-4 w-4 rounded border-cream-300 text-brand-gold focus:ring-brand-gold" />
+              <span className="text-sm text-brand-brown">نشط</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={form.showOnHome} onChange={(e) => updateField("showOnHome", e.target.checked)} className="h-4 w-4 rounded border-cream-300 text-brand-gold focus:ring-brand-gold" />
+              <span className="text-sm text-brand-brown">إظهار في الرئيسية</span>
+            </label>
           </div>
         </div>
       </div>
