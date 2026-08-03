@@ -135,14 +135,14 @@ export default async function HomePage() {
           <p className="section-subtitle">تصفّح مجموعاتنا الفاخرة المختارة بعناية</p>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {categories.map((cat: { id: string; name: string; slug: string }) => (
+          {categories.map((cat: { id: string; name: string; slug: string; icon: string | null }) => (
             <Link
               key={cat.id}
               href={`/products?category=${cat.slug}`}
               className="group flex flex-col items-center gap-4 rounded-2xl border border-cream-300 bg-white p-6 text-center shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-brand-gold hover:shadow-card"
             >
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-cream-100 text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:bg-brand-gold/10">
-                {CATEGORY_ICONS[cat.slug] || "✨"}
+                {cat.icon || CATEGORY_ICONS[cat.slug] || "✨"}
               </div>
               <span className="font-medium text-brand-brown-dark group-hover:text-brand-gold">{cat.name}</span>
             </Link>

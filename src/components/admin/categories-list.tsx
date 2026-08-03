@@ -88,7 +88,7 @@ export function CategoriesList({ initialCategories }: CategoriesListProps) {
                         <img src={cat.image} alt={cat.name} className="h-full w-full object-cover" />
                       ) : null}
                     </div>
-                    <div className="font-medium text-brand-brown-dark">{cat.name}</div>
+                    <div className="font-medium text-brand-brown-dark"><span className="ml-2 text-lg">{cat.icon || "✨"}</span>{cat.name}</div>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-oud-500" dir="ltr">{cat.slug}</td>

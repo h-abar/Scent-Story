@@ -17,6 +17,7 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
     slug: initialData?.slug || "",
     description: initialData?.description || "",
     image: initialData?.image || "",
+    icon: initialData?.icon || "",
     sortOrder: initialData?.sortOrder ?? 0,
     isActive: initialData?.isActive ?? true,
     showOnHome: initialData?.showOnHome ?? true,
@@ -74,6 +75,20 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
           <div className="sm:col-span-2">
             <label className="label">رابط صورة التصنيف</label>
             <input className="input" value={form.image} onChange={(e) => updateField("image", e.target.value)} dir="ltr" />
+          </div>
+          <div>
+            <label className="label">أيقونة التصنيف</label>
+            <div className="flex items-center gap-3">
+              <input
+                className="input flex-1 text-center text-2xl"
+                value={form.icon}
+                onChange={(e) => updateField("icon", e.target.value.slice(0, 4))}
+                placeholder="✨"
+                aria-label="أيقونة التصنيف"
+              />
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-cream-100 text-2xl">{form.icon || "✨"}</span>
+            </div>
+            <p className="mt-1 text-xs text-oud-400">يمكنك إدخال إيموجي مثل 🌸 أو 🪵</p>
           </div>
           <div>
             <label className="label">الترتيب</label>

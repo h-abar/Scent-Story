@@ -154,6 +154,7 @@ export interface SerializedCategory {
   slug: string;
   description: string | null;
   image: string | null;
+  icon: string | null;
   sortOrder: number;
   isActive: boolean;
   showOnHome: boolean;
@@ -167,6 +168,7 @@ export function serializeCategory(category: any): SerializedCategory {
     slug: category.slug,
     description: category.description ?? null,
     image: category.image ?? null,
+    icon: category.icon ?? null,
     sortOrder: category.sortOrder,
     isActive: category.isActive,
     showOnHome: category.showOnHome ?? true,
