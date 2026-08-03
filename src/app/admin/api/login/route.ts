@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminSession, ADMIN_PASSWORD } from "@/lib/session";
+import { getAdminSession, getAdminPassword } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json();
 
-  if (!password || password !== ADMIN_PASSWORD) {
+  let adminPassword: string;
+  try {
+    adminPassword = getAdminPassword();
+  } catch {
+    return NextResponse.json({ error: "إعدادات دخول الأدمن غير مكتملة" }, { status: 503 });
+  }
+
+  if (!password || password !== adminPassword) {
     return NextResponse.json({ error: "كلمة المرور غير صحيحة" }, { status: 401 });
   }
 

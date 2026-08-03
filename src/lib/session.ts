@@ -6,27 +6,29 @@ export interface AdminSession {
   loggedInAt?: number;
 }
 
-const sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret || sessionSecret.length < 32) {
-  throw new Error("SESSION_SECRET must be set and contain at least 32 characters");
-}
+export function getSessionOptions(): SessionOptions {
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret || sessionSecret.length < 32) {
+    throw new Error("SESSION_SECRET must be set and contain at least 32 characters");
+  }
 
-export const sessionOptions: SessionOptions = {
-  password: sessionSecret,
-  cookieName: "scent_story_admin",
-  cookieOptions: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // أسبوع واحد
-    path: "/",
-  },
-};
+  return {
+    password: sessionSecret,
+    cookieName: "scent_story_admin",
+    cookieOptions: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // أسبوع واحد
+      path: "/",
+    },
+  };
+}
 
 // للـ Server Components و Route Handlers
 export async function getAdminSession() {
   const cookieStore = await cookies();
-  const session = await getIronSession<AdminSession>(cookieStore, sessionOptions);
+  const session = await getIronSession<AdminSession>(cookieStore, getSessionOptions());
   return session;
 }
 
@@ -34,8 +36,10 @@ export function isAdminLoggedIn(session: AdminSession) {
   return session.isLoggedIn === true;
 }
 
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
-if (!ADMIN_PASSWORD) {
-  throw new Error("ADMIN_PASSWORD must be set");
+export function getAdminPassword(): string {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    throw new Error("ADMIN_PASSWORD must be set");
+  }
+  return adminPassword;
 }
