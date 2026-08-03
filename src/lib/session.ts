@@ -6,12 +6,17 @@ export interface AdminSession {
   loggedInAt?: number;
 }
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret || sessionSecret.length < 32) {
+  throw new Error("SESSION_SECRET must be set and contain at least 32 characters");
+}
+
 export const sessionOptions: SessionOptions = {
-  password: process.env.SESSION_SECRET ?? "development-insecure-secret-please-change-this-32+chars-long-padding-for-security",
+  password: sessionSecret,
   cookieName: "scent_story_admin",
   cookieOptions: {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7, // أسبوع واحد
     path: "/",
@@ -29,4 +34,8 @@ export function isAdminLoggedIn(session: AdminSession) {
   return session.isLoggedIn === true;
 }
 
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!ADMIN_PASSWORD) {
+  throw new Error("ADMIN_PASSWORD must be set");
+}
