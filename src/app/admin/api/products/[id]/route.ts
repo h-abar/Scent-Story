@@ -29,7 +29,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
   }
 
-  const body = await req.json();
+  let body: any;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "بيانات الطلب غير صالحة" }, { status: 400 });
+  }
 
   const data: any = {};
   if (body.name !== undefined) data.name = body.name;
@@ -41,8 +46,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (body.stock !== undefined) data.stock = Number(body.stock);
   if (body.categoryId !== undefined) data.categoryId = body.categoryId;
   if (body.images !== undefined) data.images = body.images;
-  if (body.sku !== undefined) data.sku = body.sku;
-  if (body.barcode !== undefined) data.barcode = body.barcode;
+  if (body.sku !== undefined) data.sku = typeof body.sku === "string" && body.sku.trim() ? body.sku.trim() : null;
+  if (body.barcode !== undefined) data.barcode = typeof body.barcode === "string" && body.barcode.trim() ? body.barcode.trim() : null;
   if (body.weight !== undefined) data.weight = body.weight ? new Decimal(body.weight) : null;
   if (body.origin !== undefined) data.origin = body.origin;
   if (body.fragranceNotes !== undefined) data.fragranceNotes = body.fragranceNotes;
@@ -51,13 +56,17 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (body.isBestSeller !== undefined) data.isBestSeller = !!body.isBestSeller;
   if (body.isNew !== undefined) data.isNew = !!body.isNew;
 
-  const product = await prisma.product.update({
-    where: { id: params.id },
-    data,
-    include: { category: true },
-  });
+  try {
+    const product = await prisma.product.update({
+      where: { id: params.id },
+      data,
+      include: { category: true },
+    });
 
-  return NextResponse.json({ product: serializeProduct(product) });
+    return NextResponse.json({ product: serializeProduct(product) });
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message || "فشل تحديث المنتج" }, { status: 500 });
+  }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
